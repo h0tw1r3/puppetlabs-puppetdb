@@ -42,7 +42,7 @@ describe 'basic tests' do
     -> augeas { 'puppetserver-environment':
       context => "/files${sysconfdir}/puppetserver",
       changes => [
-        "set JAVA_ARGS '\\"-Xmx512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
+        "set JAVA_ARGS '\\"-Xms512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
       ],
     }
     ~> service { 'puppetserver':
@@ -66,7 +66,7 @@ describe 'basic tests' do
 
     class { 'puppetdb':
       postgres_version            => #{postgres_version},
-      java_args                   => { '-Xmx' => '128m' },
+      java_args                   => { '-Xms' => '128m' },
       database_max_pool_size      => '2',
       read_database_max_pool_size => '2',
       #{puppetdb_params}
