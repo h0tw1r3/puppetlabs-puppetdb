@@ -27,4 +27,4 @@ jobs:
     secrets: "inherit"
     with:
       runs_on: ubuntu-20.04
-      flags: "--exclude-platforms '[\"ubuntu-18.04\",\"redhat-8\",\"redhat-7\",\"Scientific-7\",\"CentOS-7\",\"OracleLinux-7\"]'" # EL7 is failing on GHA, ubuntu 18 module updates
+      flags: "--exclude-platforms '[\"ubuntu-18.04\",\"Scientific-7\",\"CentOS-7\",\"OracleLinux-7\"]'" # EL7 is failing on GHA, ubuntu 18 module updates
