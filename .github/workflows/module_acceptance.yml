@@ -27,6 +27,8 @@ jobs:
 
       - name: "Checkout"
         uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 1
 
       - name: "Setup ruby"
         uses: "ruby/setup-ruby@v1"
@@ -63,6 +65,8 @@ jobs:
 
       - name: "Checkout"
         uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 1
 
       - name: "Setup ruby"
         uses: "ruby/setup-ruby@v1"
@@ -94,9 +98,11 @@ jobs:
 
       - name: "Install module"
         run: |
-          bundle exec rake 'litmus:install_module'
+          bundle exec rake 'litmus:install_modules_from_fixtures'
 
       - name: "Run acceptance tests"
+        env:
+          DEBUG: 1
         run: |
           bundle exec rake 'litmus:acceptance'
 
