@@ -5,22 +5,9 @@ describe 'basic tests' do
   let(:puppetdb_master_config_params) {}
   # FIXME: temporary work-around for EL installs
   let(:postgres_version) { "($facts['os']['family'] == 'RedHat') ? { true => '12', default => undef }" }
-  let(:pp) do
-    <<~PP
-    # FIXME: temporary work-around for EL installs
-    if $facts['os']['family'] == 'RedHat' {
-      $gpg_key_file = $facts['os']['release']['major'] ? {
-        '7'     => 'PGDG-RPM-GPG-KEY-RHEL7',
-        default => 'PGDG-RPM-GPG-KEY-RHEL',
-      }
-      file { "/etc/pki/rpm-gpg/${gpg_key_file}":
-        source => "https://download.postgresql.org/pub/repos/yum/keys/${gpg_key_file}",
-      }
-      -> Yumrepo <| tag == 'postgresql::repo' |> {
-        gpgkey => "file:///etc/pki/rpm-gpg/${gpg_key_file}",
-      }
-    }
 
+  let(:puppetserver_pp) do
+    <<~PP
     $sysconfdir = $facts['os']['family'] ? {
       'Debian' => '/etc/default',
       default  => '/etc/sysconfig',
@@ -42,12 +29,30 @@ describe 'basic tests' do
     -> augeas { 'puppetserver-environment':
       context => "/files${sysconfdir}/puppetserver",
       changes => [
-        "set JAVA_ARGS '\\"-Xms512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
+        'set JAVA_ARGS \'"-Xms384m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"\'',
       ],
     }
     ~> service { 'puppetserver':
       ensure => running,
       enable => true,
+    }
+    PP
+  end
+
+  let(:pp) do
+    <<~PP
+    # FIXME: temporary work-around for EL installs
+    if $facts['os']['family'] == 'RedHat' {
+      $gpg_key_file = $facts['os']['release']['major'] ? {
+        '7'     => 'PGDG-RPM-GPG-KEY-RHEL7',
+        default => 'PGDG-RPM-GPG-KEY-RHEL',
+      }
+      file { "/etc/pki/rpm-gpg/${gpg_key_file}":
+        source => "https://download.postgresql.org/pub/repos/yum/keys/${gpg_key_file}",
+      }
+      -> Yumrepo <| tag == 'postgresql::repo' |> {
+        gpgkey => "file:///etc/pki/rpm-gpg/${gpg_key_file}",
+      }
     }
 
     # reduce pgs memory
@@ -75,6 +80,12 @@ describe 'basic tests' do
       #{puppetdb_master_config_params}
     }
     PP
+  end
+
+  describe 'puppetserver' do
+    it 'applies idempotently' do
+      idempotent_apply(puppetserver_pp)
+    end
   end
 
   describe 'puppetdb' do
