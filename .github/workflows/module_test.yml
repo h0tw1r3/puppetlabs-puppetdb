@@ -4,26 +4,26 @@ name: "Module Test"
 on:
   workflow_call:
     inputs:
+      ruby_version:
+        description: "Ruby version to use for tests"
+        required: true
+        type: "string"
+      puppet_version:
+        description: "Puppet version to use for tests"
+        required: true
+        type: "string"
       runs_on:
         description: "The operating system used for the runner."
         required: false
         default: "ubuntu-latest"
         type: "string"
-      matrix:
-        description: "JSON Matrix"
-        required: true
-        type: "string"
 
 jobs:
   spec:
-    name: "Spec tests (Puppet: ${{matrix.puppet_version}}, Ruby Ver: ${{matrix.ruby_version}})"
-    needs: "setup_matrix"
+    name: "Spec tests (Puppet: ${{ inputs.puppet_version}}, Ruby Ver: ${{ inputs.ruby_version }})"
     runs-on: ${{ inputs.runs_on }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson( input.matrix ) }}
-
     steps:
       - name: "Test"
         run: |
-          echo ${{matrix}}
+          echo ${{ inputs.puppet_version }}
+          echo ${{ inputs.ruby_version }}

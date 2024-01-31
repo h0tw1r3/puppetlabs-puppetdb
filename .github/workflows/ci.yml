@@ -34,16 +34,20 @@ jobs:
       runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
-    if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
+    name: "Spec tests (Puppet: ${{matrix.puppet_version}}, Ruby Ver: ${{matrix.ruby_version}})"
     strategy:
       matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
+    if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
     needs: Matrix
-    uses: ./.github/workflows/module_ci.yml
+    uses: ./.github/workflows/module_test.yml
     secrets: inherit
+    with:
+      puppet_version: ${{ matrix.puppet_version }}
+      ruby_version: ${{ matrix.ruby_version }}
   Acceptance:
     needs: Matrix
     strategy:
-      matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
+      matrix: ${{ fromJson(needs.Matrix.outputs.matrix) }}
     if: ${{ inputs.run_matrix == 'true' }}
     uses: "./.github/workflows/module_acceptance.yml"
     secrets: "inherit"
