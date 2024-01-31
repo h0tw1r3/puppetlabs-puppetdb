@@ -31,7 +31,7 @@ on:
 
 jobs:
   test:
-    name: "Test (Puppet ${{ matrix.platforms.label }} Ruby ${{ matrix.collection }})"
+    name: "Test ${{ matrix.platforms.label }} with ${{ matrix.collection }})"
     runs-on: ${{ inputs.runs_on }}
     strategy:
       fail-fast: false

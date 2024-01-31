@@ -26,7 +26,7 @@ on:
 
 jobs:
   test:
-    name: "Test (Puppet ${{ matrix.puppet_version }} Ruby ${{ matrix.ruby_version }})"
+    name: "Test Puppet ${{ matrix.puppet_version }} with ruby ${{ matrix.ruby_version }}"
     runs-on: ${{ inputs.runs_on }}
     strategy:
       fail-fast: false

@@ -31,15 +31,14 @@ jobs:
   Matrix:
     uses: ./.github/workflows/matrix.yml
     with:
-      runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
     if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
-    name: "Spec"
     needs: Matrix
     uses: ./.github/workflows/module_spec_matrix.yml
     secrets: inherit
     with:
+      ignore_dependency_check: true # TODO: remove after module updates
       matrix: ${{ needs.Matrix.outputs.spec_matrix }}
   Acceptance:
     if: ${{ github.event_name == 'pull_request' || inputs.run_acceptance == 'true' }}
@@ -48,3 +47,4 @@ jobs:
     secrets: inherit
     with:
       matrix: ${{ needs.Matrix.outputs.acceptance_matrix }}
+      runs_on: ubuntu-20.04 # TODO: cgroupv1 containers do not provision on ubuntu-latest
