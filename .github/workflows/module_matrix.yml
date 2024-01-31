@@ -23,7 +23,7 @@ on:
 jobs:
   generate-json-matrix:
     name: Generate output
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     outputs:
       spec_matrix: ${{ steps.get-matrix.outputs.spec_matrix }}
       acceptance_matrix: ${{ steps.get-matrix.outputs.matrix }}
