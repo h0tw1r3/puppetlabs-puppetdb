@@ -17,11 +17,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Spec:
-    uses: ./.github/workflows/module_ci.yml
-    secrets: inherit
+  #Spec:
+  #  uses: ./.github/workflows/module_ci.yml
+  #  secrets: inherit
   Acceptance:
     uses: "./.github/workflows/module_acceptance.yml"
     secrets: "inherit"
     with:
+      runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"

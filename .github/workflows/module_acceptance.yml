@@ -24,23 +24,20 @@ jobs:
       acceptance_matrix: ${{ steps.get-matrix.outputs.matrix }}
 
     steps:
-
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
+      - name: Checkout Source
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: "Setup ruby"
-        uses: "ruby/setup-ruby@v1"
+      - name: Activate Ruby 2.7
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: "2.7"
           bundler-cache: true
 
-      - name: "Bundle environment"
+      - name: Print bundle environment
         run: |
-          echo ::group::bundler environment
           bundle env
-          echo ::endgroup::
 
       - name: Setup Test Matrix
         id: get-matrix
@@ -53,60 +50,48 @@ jobs:
     runs-on: ${{ inputs.runs_on }}
     timeout-minutes: 30
     strategy:
-      max-parallel: 6
       fail-fast: false
       matrix: ${{ fromJson( needs.setup_matrix.outputs.acceptance_matrix ) }}
 
     env:
       PUPPET_GEM_VERSION: '~> 7.24'
-      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'  # why is this set?
+      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'
 
     steps:
-
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
+      - name: Checkout Source
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: "Setup ruby"
-        uses: "ruby/setup-ruby@v1"
+      - name: Activate Ruby 2.7
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: "2.7"
           bundler-cache: true
 
-      - name: "Bundle environment"
+      - name: Print bundle environment
         run: |
-          echo ::group::bundler environment
           bundle env
-          echo ::endgroup::
 
-      - name: "Provision environment"
+      - name: Provision test environment
         run: |
-          if [[ "${{matrix.platforms.provider}}" == "docker" ]]; then
-            DOCKER_RUN_OPTS="docker_run_opts: {'--volume': '/lib/modules/$(uname -r):/lib/modules/$(uname -r)'}"
-          else
-            DOCKER_RUN_OPTS=''
-          fi
-          bundle exec rake "litmus:provision[${{matrix.platforms.provider}},${{ matrix.platforms.image }},$DOCKER_RUN_OPTS]"
-          # Redact password
+          bundle exec rake 'litmus:provision[${{matrix.platforms.provider}},${{ matrix.platforms.image }}]'
           FILE='spec/fixtures/litmus_inventory.yaml'
           sed -e 's/password: .*/password: "[redacted]"/' < $FILE || true
 
-      - name: "Install Puppet agent"
+      - name: Install agent
         run: |
           bundle exec rake 'litmus:install_agent[${{ matrix.collection }}]'
 
-      - name: "Install module"
+      - name: Install module
         run: |
-          bundle exec rake 'litmus:install_modules_from_fixtures'
+          bundle exec rake 'litmus:install_module'
 
-      - name: "Run acceptance tests"
-        env:
-          DEBUG: 1
+      - name: Run acceptance tests
         run: |
           bundle exec rake 'litmus:acceptance'
 
-      - name: "Remove test environment"
+      - name: Remove test environment
         if: ${{ always() }}
         continue-on-error: true
         run: |
