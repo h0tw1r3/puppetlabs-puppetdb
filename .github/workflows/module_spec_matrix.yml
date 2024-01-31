@@ -4,28 +4,33 @@ name: "Module Spec Matrix"
 on:
   workflow_call:
     inputs:
-      spec_matrix:
+      matrix:
         description: "JSON matrix"
         required: true
         type: "string"
-      dependency_check:
-        description: "Include dependency check"
+      ignore_dependency_check:
+        description: "Ignore dependency check failure"
+        required: false
+        type: "boolean"
+        default: false
+      debug:
+        description: "Run jobs with debug steps and flags enabled"
         required: false
         type: "boolean"
         default: false
       runs_on:
-        description: "The operating system used for the runner."
+        description: "The operating system used for the runner"
         required: false
         default: "ubuntu-latest"
         type: "string"
 
 jobs:
   test:
-    name: "Test / Puppet ${{matrix.puppet_version}} / Ruby ${{matrix.ruby_version}})"
+    name: "Test (Puppet ${{ matrix.puppet_version }} Ruby ${{ matrix.ruby_version }})"
     runs-on: ${{ inputs.runs_on }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(inputs.spec_matrix) }}
+      matrix: ${{ fromJson(inputs.matrix) }}
     env:
       PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
       FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'  # why is this set?
@@ -44,18 +49,19 @@ jobs:
           bundler-cache: true
 
       - name: "Bundle environment"
+        if: ${{ inputs.debug == 'true' }}
         run: |
           echo ::group::bundler environment
           bundle env
           echo ::endgroup::
 
-      - name: "Run Static & Syntax Tests"
+      - name: "Run static & syntax tests"
         run: |
           bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+
       - name: "Dependency check"
-        if: ${{ inputs.dependency_check == 'true' }}
         run: |
-          bundle exec dependency-checker metadata.json
+          bundle exec dependency-checker metadata.json ${{ inputs.ignore_dependency_check == 'true' && '|| true' || '' }}
 
       - name: "Run tests"
         run: |

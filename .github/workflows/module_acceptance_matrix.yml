@@ -1,0 +1,86 @@
+# This is a generic workflow for Puppet module acceptance operations.
+name: "Module Acceptance"
+
+on:
+  workflow_call:
+    inputs:
+      matrix:
+        description: "JSON matrix"
+        type: "string"
+        required: true
+      debug:
+        description: "Run jobs with debug steps and flags enabled"
+        type: "boolean"
+        required: false
+        default: false
+      puppet_version:
+        description: "Version of Puppet used to run tests"
+        type: "string"
+        required: false
+        default: "~> 7.24"
+      ruby_version:
+        description: "Version of Ruby to install"
+        type: "string"
+        required: false
+        default: "2.7"
+      runs_on:
+        description: "The operating system used for the runner"
+        type: "string"
+        required: false
+        default: "ubuntu-latest"
+
+jobs:
+  test:
+    name: "Test (Puppet ${{ matrix.platforms.label }} Ruby ${{ matrix.collection }})"
+    runs-on: ${{ inputs.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(inputs.matrix) }}
+    env:
+      PUPPET_GEM_VERSION: ${{ inputs.puppet_version }}
+      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Activate Ruby ${{ inputs.ruby_version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ inputs.ruby_version }}
+          bundler-cache: true
+
+      - name: Bundle environment
+        if: ${{ inputs.debug == 'true' }}
+        run: |
+          echo ::group::bundler environment
+          bundle env
+          echo ::endgroup::
+
+      - name: Provision test environment
+        run: |
+          bundle exec rake 'litmus:provision[${{matrix.platforms.provider}},${{ matrix.platforms.image }}]'
+          FILE='spec/fixtures/litmus_inventory.yaml'
+          sed -e 's/password: .*/password: "[redacted]"/' < $FILE || true
+
+      - name: Install agent and module
+        run: |
+          echo ::group::agent
+          bundle exec rake 'litmus:install_agent[${{ matrix.collection }}]'
+          echo ::endgroup::
+          echo ::group::module
+          bundle exec rake 'litmus:install_module'
+          echo ::endgroup::
+
+      - name: Run acceptance tests
+        run: |
+          bundle exec rake 'litmus:acceptance'
+
+      - name: Tear down
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          if [[ -f spec/fixtures/litmus_inventory.yaml ]]; then
+            bundle exec rake 'litmus:tear_down'
+          fi

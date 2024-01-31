@@ -40,11 +40,11 @@ jobs:
     uses: ./.github/workflows/module_spec_matrix.yml
     secrets: inherit
     with:
-      spec_matrix: ${{ needs.Matrix.outputs.spec_matrix }}
+      matrix: ${{ needs.Matrix.outputs.spec_matrix }}
   Acceptance:
+    if: ${{ github.event_name == 'pull_request' || inputs.run_acceptance == 'true' }}
     needs: Matrix
-    strategy:
-      matrix: ${{ fromJson(needs.Matrix.outputs.matrix) }}
-    if: ${{ inputs.run_matrix == 'true' }}
-    uses: "./.github/workflows/module_acceptance.yml"
-    secrets: "inherit"
+    uses: ./.github/workflows/module_acceptance_matrix.yml
+    secrets: inherit
+    with:
+      matrix: ${{ needs.Matrix.outputs.acceptance_matrix }}
