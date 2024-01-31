@@ -17,6 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  Matrix:
+    uses: ./.github/workflows/module_matrix.yml
   #Spec:
   #  uses: ./.github/workflows/module_ci.yml
   #  secrets: inherit
