@@ -41,11 +41,9 @@ jobs:
         id: get-matrix
         run: |
           bundle exec matrix_from_metadata_v2 ${{ inputs.flags }}
-      - name: Output Matrix
-        run: |
           echo ::group::spec matrix
-          jq < ${{ steps.get-matrix.outputs.spec_matrix }}
+          sed -n 's/^spec_matrix=\(.*\)/\1/p' $GITHUB_OUTPUT | jq
           echo ::endgroup::
           echo ::group::acceptance matrix
-          jq < ${{ steps.get-matrix.outputs.matrix }}
+          sed -n 's/^matrix=\(.*\)/\1/p' $GITHUB_OUTPUT | jq
           echo ::endgroup::
