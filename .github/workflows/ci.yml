@@ -24,4 +24,4 @@ jobs:
     uses: "./.github/workflows/module_acceptance.yml"
     secrets: "inherit"
     with:
-      flags: "--exclude-platforms '[\"Ubuntu-18\",\"CentOS-7\",\"OracleLinux-7\"]'"
+      flags: "--exclude-platforms '[\"Ubuntu-18\"]'"
