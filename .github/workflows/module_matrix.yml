@@ -40,5 +40,12 @@ jobs:
       - name: Setup Test Matrix
         id: get-matrix
         run: |
-          bundle env
           bundle exec matrix_from_metadata_v2 ${{ inputs.flags }}
+      - name: Output Matrix
+        run: |
+          echo ::group::spec matrix
+          jq < ${{ steps.get-matrix.outputs.spec_matrix }}
+          echo ::endgroup::
+          echo ::group::acceptance matrix
+          jq < ${{ steps.get-matrix.outputs.matrix }}
+          echo ::endgroup::
