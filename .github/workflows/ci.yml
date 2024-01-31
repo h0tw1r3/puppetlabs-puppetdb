@@ -20,3 +20,8 @@ jobs:
   Spec:
     uses: ./.github/workflows/module_ci.yml
     secrets: inherit
+  Acceptance:
+    uses: "./.github/workflows/module_acceptance.yml"
+    secrets: "inherit"
+    with:
+      flags: "--exclude-platforms '[\"Ubuntu-18\",\"CentOS-7\",\"OracleLinux-7\"]'"
