@@ -29,17 +29,17 @@ concurrency:
 
 jobs:
   Matrix:
-    uses: ./.github/workflows/module_matrix.yml
+    uses: ./.github/workflows/matrix.yml
     with:
       runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
-    name: "Spec tests (Puppet: ${{matrix.puppet_version}}, Ruby Ver: ${{matrix.ruby_version}})"
+    name: "Spec"
     strategy:
       matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
     if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
     needs: Matrix
-    uses: ./.github/workflows/module_test.yml
+    uses: ./.github/workflows/module_spec.yml
     secrets: inherit
     with:
       puppet_version: ${{ matrix.puppet_version }}
