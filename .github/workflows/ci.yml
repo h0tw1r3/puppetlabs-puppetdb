@@ -1,18 +1,6 @@
 name: ci
 
 on:
-  workflow_call:
-    inputs:
-      run_spec:
-        description: "Run Spec job"
-        type: boolean
-        required: false
-        default: true
-      run_acceptance:
-        description: "Run Acceptance job"
-        type: boolean
-        required: false
-        default: false
   pull_request:
     branches:
       - "main"
@@ -47,9 +35,15 @@ jobs:
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
     if: ${{ inputs.run_spec == 'true' }}
+    strategy:
+      matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
+    needs: Matrix
     uses: ./.github/workflows/module_ci.yml
     secrets: inherit
   Acceptance:
+    needs: Matrix
+    strategy:
+      matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
     if: ${{ inputs.run_matrix == 'true' }}
     uses: "./.github/workflows/module_acceptance.yml"
     secrets: "inherit"
