@@ -34,7 +34,7 @@ jobs:
       runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
-    if: ${{ inputs.run_spec == 'true' }}
+    if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
     strategy:
       matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
     needs: Matrix

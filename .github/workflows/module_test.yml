@@ -1,0 +1,29 @@
+# This is a generic workflow for Puppet module CI operations.
+name: "Module Test"
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: "The operating system used for the runner."
+        required: false
+        default: "ubuntu-latest"
+        type: "string"
+      matrix:
+        description: "JSON Matrix"
+        required: true
+        type: "string"
+
+jobs:
+  spec:
+    name: "Spec tests (Puppet: ${{matrix.puppet_version}}, Ruby Ver: ${{matrix.ruby_version}})"
+    needs: "setup_matrix"
+    runs-on: ${{ inputs.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson( input.matrix ) }}
+
+    steps:
+      - name: "Test"
+        run: |
+          echo ${{matrix}}
