@@ -1,0 +1,62 @@
+# This is a generic workflow for Puppet module CI operations.
+name: "Module Spec Matrix"
+
+on:
+  workflow_call:
+    inputs:
+      spec_matrix:
+        description: "JSON matrix"
+        required: true
+        type: "string"
+      dependency_check:
+        description: "Include dependency check"
+        required: false
+        type: "boolean"
+        default: false
+      runs_on:
+        description: "The operating system used for the runner."
+        required: false
+        default: "ubuntu-latest"
+        type: "string"
+
+jobs:
+  test:
+    name: "Test / Puppet ${{matrix.puppet_version}} / Ruby ${{matrix.ruby_version}})"
+    runs-on: ${{ inputs.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(inputs.spec_matrix) }}
+    env:
+      PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
+      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'  # why is this set?
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          force-depth: 1
+
+      - name: "Setup ruby"
+        uses: "ruby/setup-ruby@v1"
+        with:
+          ruby-version: ${{ matrix.ruby_version }}
+          bundler-cache: true
+
+      - name: "Bundle environment"
+        run: |
+          echo ::group::bundler environment
+          bundle env
+          echo ::endgroup::
+
+      - name: "Run Static & Syntax Tests"
+        run: |
+          bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+      - name: "Dependency check"
+        if: ${{ inputs.dependency_check == 'true' }}
+        run: |
+          bundle exec dependency-checker metadata.json
+
+      - name: "Run tests"
+        run: |
+          bundle exec rake parallel_spec

@@ -34,16 +34,13 @@ jobs:
       runs_on: "ubuntu-20.04"
       flags: "--exclude-platforms '[\"Ubuntu-18.04\"]'"
   Spec:
-    name: "Spec"
-    strategy:
-      matrix: ${{ fromJson(needs.Matrix.outputs.spec_matrix) }}
     if: ${{ github.event_name == 'pull_request' || inputs.run_spec == 'true' }}
+    name: "Spec"
     needs: Matrix
-    uses: ./.github/workflows/module_spec.yml
+    uses: ./.github/workflows/module_spec_matrix.yml
     secrets: inherit
     with:
-      puppet_version: ${{ matrix.puppet_version }}
-      ruby_version: ${{ matrix.ruby_version }}
+      spec_matrix: ${{ needs.Matrix.outputs.spec_matrix }}
   Acceptance:
     needs: Matrix
     strategy:
