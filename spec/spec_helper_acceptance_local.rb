@@ -6,7 +6,7 @@ class LitmusHelper
   include PuppetLitmus
 end
 
-Dir['./spec/support/unit/**/*.rb'].sort.each { |f| require f }
+Dir['./spec/support/acceptance/**/*.rb'].sort.each { |f| require f }
 
 RSpec.configure do |c|
   c.before :suite do
