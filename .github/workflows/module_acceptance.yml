@@ -39,6 +39,7 @@ jobs:
     env:
       PUPPET_GEM_VERSION: ${{ inputs.puppet_version }}
       FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'
+      BOLT_GEM: 1
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -99,8 +100,23 @@ jobs:
         run: bundle exec rake 'litmus:install_module'
 
       - name: Run acceptance tests
+        id: run-acceptance
         timeout-minutes: 15
         run: bundle exec rake 'litmus:acceptance:parallel[requirement]'
+
+      - name: Failure Logs
+        if: ${{ failure() && steps.run-acceptance.conclusion == 'failure' }}
+        continue-on-error: true
+        run: |
+          echo ::group::last 100 lines in runner journal
+          journalctl -n 100
+          echo ::endgroup::
+          echo ::group::last 100 lines in container journal
+          bundle exec bolt command run 'journalctl -n 100' -t all -i spec/fixtures/litmus_inventory.yaml
+          echo ::endgroup::
+          echo ::group::last 50 lines of puppetlabs logs
+          bundle exec bolt command run 'tail -n 50 /var/log/puppetlabs/*/*.log' -t all -i spec/fixtures/litmus_inventory.yaml
+          echo ::endgroup::
 
       - name: Tear down
         if: ${{ always() }}
