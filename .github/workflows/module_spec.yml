@@ -58,8 +58,7 @@ jobs:
           echo "DEBUG=1" >> $GITHUB_ENV
 
       - name: "Run static & syntax tests"
-        run: |
-          bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+        run: bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
 
       - name: "Dependency check"
         run: |
@@ -70,6 +69,22 @@ jobs:
             exit $EC
           fi
 
+      - name: Cache fixture modules
+        id: cache-fixtures
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-fixtures-modules
+        with:
+          path: ~/spec/fixtures/modules
+          key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
+          restore-keys: |
+            test-${{ env.cache-name }}-
+            test-
+
+      - if: ${{ steps.cache-fixtures.outputs.cache-hit != 'true' }}
+        name: List the state of fixture modules
+        continue-on-error: true
+        run: ls -1 spec/fixtures/modules
+
       - name: "Run tests"
-        run: |
-          bundle exec rake parallel_spec
+        run: bundle exec rake parallel_spec
