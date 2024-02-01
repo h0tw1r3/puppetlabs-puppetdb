@@ -6,53 +6,6 @@ describe 'basic tests' do
   # FIXME: temporary work-around for EL installs
   let(:postgres_version) { "($facts['os']['family'] == 'RedHat') ? { true => '12', default => undef }" }
 
-  let(:puppetserver_pp) do
-    <<~PP
-    $sysconfdir = $facts['os']['family'] ? {
-      'Debian' => '/etc/default',
-      default  => '/etc/sysconfig',
-    }
-    package { 'puppetserver':
-     ensure => installed,
-    }
-    package { 'java-11-openjdk-headless': }
-    # savagely disable dropsonde
-    -> file { '/opt/puppetlabs/server/data/puppetserver/dropsonde':
-      ensure    => absent,
-      recurse   => true,
-      force     => true,
-      max_files => 6000,
-    }
-    ~> exec { 'update-alternatives':
-       command     => "/usr/bin/env alternatives --set java java-11-openjdk.${facts['os']['architecture']}",
-       refreshonly => true,
-    }
-    #-> exec { '/opt/puppetlabs/bin/puppetserver ca setup':
-    #  creates => '/etc/puppetlabs/puppetserver/ca/ca_crt.pem',
-    #}
-    # drop memory requirements to fit on a sub-2g ram instance
-    -> augeas { 'puppetserver-environment':
-      context => "/files${sysconfdir}/puppetserver",
-      changes => [
-        # "set JAVA_ARGS '\\"-Xms2g -Xmx2g -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
-        "set START_TIMEOUT '30'",
-      ],
-    }
-    -> augeas { 'puppetserver-logback-journal':
-      incl => '/etc/puppetlabs/puppetserver/logback.xml',
-      lens => 'Xml.lns',
-      changes => [
-        "defnode aref configuration/root/appender-ref[#attribute/ref='STDOUT'] ''",
-        "set \\\$aref/#attribute/ref 'STDOUT'",
-      ]
-    }
-    -> service { 'puppetserver':
-      ensure => running,
-      enable => true,
-    }
-    PP
-  end
-
   let(:pp) do
     <<~PP
     # FIXME: temporary work-around for EL installs
@@ -67,6 +20,7 @@ describe 'basic tests' do
       -> Yumrepo <| tag == 'postgresql::repo' |> {
         gpgkey => "file:///etc/pki/rpm-gpg/${gpg_key_file}",
       }
+      # ip6tables service is broken on el7 under docker on GHA
       if Integer($facts['os']['release']['major']) < 8 {
         Service['ip6tables'] { enable => 'mask' }
       }
@@ -96,12 +50,6 @@ describe 'basic tests' do
       #{puppetdb_master_config_params}
     }
     PP
-  end
-
-  describe 'puppetserver', :requirement do
-    it 'applies idempotently' do
-      idempotent_apply(puppetserver_pp, debug: ENV.key?('DEBUG'))
-    end
   end
 
   describe 'puppetdb' do

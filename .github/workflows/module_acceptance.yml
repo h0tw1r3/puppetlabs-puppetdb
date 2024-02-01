@@ -102,7 +102,7 @@ jobs:
       - name: Run acceptance tests
         id: run-acceptance
         timeout-minutes: 15
-        run: bundle exec rake 'litmus:acceptance:parallel[requirement]'
+        run: bundle exec rake 'litmus:acceptance'
 
       - name: Failure Logs
         if: ${{ failure() && steps.run-acceptance.conclusion == 'failure' }}

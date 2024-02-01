@@ -11,8 +11,8 @@ Dir['./spec/support/acceptance/**/*.rb'].sort.each { |f| require f }
 RSpec.configure do |c|
   c.fail_fast = true
   c.before :suite do
-    manifest = File.read(File.join(File.dirname(__FILE__), 'fixtures/before_suite.pp'))
-    LitmusHelper.instance.apply_manifest(manifest, expect_failures: false)
+    manifest = File.read(File.join(File.dirname(__FILE__), 'fixtures/acceptance/puppetserver.pp'))
+    LitmusHelper.instance.apply_manifest(manifest, expect_failures: false, debug: ENV.key?('DEBUG'))
   end
 end
 
