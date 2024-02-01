@@ -23,6 +23,10 @@ describe 'basic tests' do
       force     => true,
       max_files => 6000,
     }
+    ~> exec { 'update-alternatives':
+       command     => "/usr/bin/env alternatives --set java java-11-openjdk.${facts['os']['architecture']}",
+       refreshonly => true,
+    }
     -> exec { '/opt/puppetlabs/bin/puppetserver ca setup':
       creates => '/etc/puppetlabs/puppetserver/ca/ca_crt.pem',
     }
