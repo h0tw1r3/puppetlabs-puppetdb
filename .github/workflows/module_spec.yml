@@ -57,6 +57,18 @@ jobs:
           echo "RSPEC_DEBUG=1" >> $GITHUB_ENV
           echo "DEBUG=1" >> $GITHUB_ENV
 
+      - name: "Cache fixture modules"
+        id: cache-fixtures
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-fixtures-modules
+        with:
+          path: spec/fixtures/modules
+          key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
+          restore-keys: |
+            test-${{ env.cache-name }}-
+            test-
+
       - name: "Run static & syntax tests"
         run: bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
 
@@ -68,18 +80,6 @@ jobs:
           else
             exit $EC
           fi
-
-      - name: "Cache fixture modules"
-        id: cache-fixtures
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-fixtures-modules
-        with:
-          path: spec/fixtures/modules
-          key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
-          restore-keys: |
-            test-${{ env.cache-name }}-
-            test-
 
       - name: "Install modules"
         run: bundle exec rake spec_prep

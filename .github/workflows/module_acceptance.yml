@@ -60,6 +60,18 @@ jobs:
           echo "RSPEC_DEBUG=1" >> $GITHUB_ENV
           echo "DEBUG=1" >> $GITHUB_ENV
 
+      - name: Cache fixture modules
+        id: cache-fixtures
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-fixtures-modules
+        with:
+          path: spec/fixtures/modules
+          key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
+          restore-keys: |
+            test-${{ env.cache-name }}-
+            test-
+
       - name: Provision test environment
         timeout-minutes: 10
         run: |
@@ -72,18 +84,6 @@ jobs:
           echo ::group::agent
           bundle exec rake 'litmus:install_agent[${{ matrix.collection }}]'
           echo ::endgroup::
-
-      - name: Cache fixture modules
-        id: cache-fixtures
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-fixtures-modules
-        with:
-          path: spec/fixtures/modules
-          key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
-          restore-keys: |
-            test-${{ env.cache-name }}-
-            test-
 
       - name: Install module
         run: bundle exec rake 'litmus:install_module'
