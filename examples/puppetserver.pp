@@ -23,9 +23,7 @@ if $facts['os']['family'] == 'RedHat' {
     Yumrepo <| tag == 'postgresql::repo' |>
     -> Package['disable-dnf-postgresql-module']
     -> Package <| tag == 'postgresql' |>
-  }
-
-  if Integer($facts['os']['release']['major']) < 7 {
+  } else {
     # Work-around systemd 2.19 cgroups bug affecting EL7 in docker.
     # Does not acknowledge puppetserver startup in docker.
     # Without this, the puppet agent will stall for 300 seconds waiting for
@@ -34,6 +32,8 @@ if $facts['os']['family'] == 'RedHat' {
     #     New main PID 1411 does not belong to service, and PID file is not owned by root. Refusing.
     systemd::dropin_file { 'fix_start.conf':
       unit    => 'puppetserver.service',
+      require => Package['puppetserver'],
+      notify  => Service['puppetserver'],
       content => @(EOD)
         PIDFile=
         | EOD
