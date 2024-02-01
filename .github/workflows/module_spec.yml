@@ -69,7 +69,7 @@ jobs:
             exit $EC
           fi
 
-      - name: Cache fixture modules
+      - name: "Cache fixture modules"
         id: cache-fixtures
         uses: actions/cache@v3
         env:
@@ -80,6 +80,9 @@ jobs:
           restore-keys: |
             test-${{ env.cache-name }}-
             test-
+
+      - name: "Install modules"
+        run: bundle exec rake spec_prep
 
       - name: "Run tests"
         run: bundle exec rake parallel_spec_standalone
