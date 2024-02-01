@@ -29,7 +29,7 @@ describe 'basic tests' do
     -> augeas { 'puppetserver-environment':
       context => "/files${sysconfdir}/puppetserver",
       changes => [
-        "set JAVA_ARGS '\\"-Xms384m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
+        "set JAVA_ARGS '\\"-Xms1g -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
       ],
     }
     ~> service { 'puppetserver':
