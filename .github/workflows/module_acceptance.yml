@@ -81,7 +81,7 @@ jobs:
           bundle exec rake 'litmus:provision[${{matrix.platforms.provider}},${{ matrix.platforms.image }}]'
           FILE='spec/fixtures/litmus_inventory.yaml'
           sed -e 's/password: .*/password: "[redacted]"/' < $FILE || true
-          if [ "${{ debug }}" == "true" ] ; then
+          if [ "${{ inputs.debug }}" == "true" ] ; then
             while read CN ; do
               echo ::group::docker container $CN
               docker inspect "$CN"
