@@ -27,9 +27,9 @@ describe 'basic tests' do
        command     => "/usr/bin/env alternatives --set java java-11-openjdk.${facts['os']['architecture']}",
        refreshonly => true,
     }
-    -> exec { '/opt/puppetlabs/bin/puppetserver ca setup':
-      creates => '/etc/puppetlabs/puppetserver/ca/ca_crt.pem',
-    }
+    #-> exec { '/opt/puppetlabs/bin/puppetserver ca setup':
+    #  creates => '/etc/puppetlabs/puppetserver/ca/ca_crt.pem',
+    #}
     # drop memory requirements to fit on a sub-2g ram instance
     -> augeas { 'puppetserver-environment':
       context => "/files${sysconfdir}/puppetserver",
