@@ -15,6 +15,7 @@ describe 'basic tests' do
     package { 'puppetserver':
      ensure => installed,
     }
+    package { 'java-11-openjdk-headless': }
     # savagely disable dropsonde
     -> file { '/opt/puppetlabs/server/data/puppetserver/dropsonde':
       ensure    => absent,
