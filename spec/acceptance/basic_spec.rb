@@ -100,13 +100,13 @@ describe 'basic tests' do
 
   describe 'puppetserver', :requirement do
     it 'applies idempotently' do
-      idempotent_apply(puppetserver_pp)
+      idempotent_apply(puppetserver_pp, debug: ENV.key?('DEBUG'))
     end
   end
 
   describe 'puppetdb' do
     it 'applies idempotently' do
-      idempotent_apply(pp)
+      idempotent_apply(pp, debug: ENV.key?('DEBUG'))
     end
 
     describe service('puppetdb'), :status do
@@ -156,7 +156,7 @@ describe 'basic tests' do
           end
 
           it 'applies manifest' do
-            apply_manifest(pp, expect_failures: false)
+            apply_manifest(pp, expect_failures: false, debug: ENV.key?('DEBUG'))
           end
 
           describe command('puppet config print --section master reports') do
@@ -180,7 +180,7 @@ describe 'basic tests' do
     end
 
     it 'applies idempotently' do
-      idempotent_apply(pp)
+      idempotent_apply(pp, debug: ENV.key?('DEBUG'))
     end
   end
 
@@ -199,7 +199,7 @@ describe 'basic tests' do
         }
         EOS
 
-      apply_manifest(pp, expect_failures: false)
+      apply_manifest(pp, expect_failures: false, debug: ENV.key?('DEBUG'))
     end
 
     describe service('puppetdb') do
