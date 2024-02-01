@@ -75,7 +75,7 @@ jobs:
         env:
           cache-name: cache-fixtures-modules
         with:
-          path: ~/spec/fixtures/modules
+          path: spec/fixtures/modules
           key: test-${{ env.cache-name }}-${{ hashFiles('metadata.json', '.fixtures.yml') }}
           restore-keys: |
             test-${{ env.cache-name }}-
