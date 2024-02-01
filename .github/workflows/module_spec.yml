@@ -48,12 +48,14 @@ jobs:
           ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
 
-      - name: "Bundle environment"
-        if: ${{ inputs.debug == 'true' }}
+      - name: Debug
+        if: ${{ inputs.debug == true }}
         run: |
           echo ::group::bundler environment
           bundle env
           echo ::endgroup::
+          echo "RSPEC_DEBUG=1" >> $GITHUB_ENV
+          echo "DEBUG=1" >> $GITHUB_ENV
 
       - name: "Run static & syntax tests"
         run: |
