@@ -32,7 +32,15 @@ describe 'basic tests' do
         "set JAVA_ARGS '\\"-Xms1g -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
       ],
     }
-    ~> service { 'puppetserver':
+    -> augeas { 'puppetserver-logback-journal':
+      incl => '/etc/puppetlabs/puppetserver/logback.xml',
+      lens => 'Xml.lns',
+      changes => [
+        "defnode aref configuration/root/appender-ref[#attribute/ref='STDOUT'] ''",
+        "set \\\$aref/#attribute/ref 'STDOUT'",
+      ]
+    }
+    -> service { 'puppetserver':
       ensure => running,
       enable => true,
     }
