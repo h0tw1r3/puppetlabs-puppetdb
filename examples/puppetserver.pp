@@ -37,6 +37,7 @@ if $facts['os']['family'] == 'RedHat' {
       content => @(EOD)
         PIDFile=
         | EOD
+      ,
     }
   }
 }
@@ -55,7 +56,7 @@ package { 'puppetserver':
     '/opt/puppetlabs/server/data/puppetserver/dropsonde/bin/dropsonde',
     '/opt/puppetlabs/server/apps/puppetserver/cli/apps/dropsonde',
   ]:
-  ensure => absent,
+    ensure => absent,
 }
 -> exec { '/opt/puppetlabs/bin/puppetserver ca setup':
   creates => '/etc/puppetlabs/puppetserver/ca/ca_crt.pem',
@@ -64,7 +65,7 @@ package { 'puppetserver':
 -> augeas { 'puppetserver-environment':
   context => "/files${sysconfdir}/puppetserver",
   changes => [
-    "set JAVA_ARGS '\\"-Xms512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
+    'set JAVA_ARGS \'"-Xms512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"\'',
     "set START_TIMEOUT '30'",
   ],
 }
