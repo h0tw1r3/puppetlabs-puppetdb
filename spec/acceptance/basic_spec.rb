@@ -85,7 +85,7 @@ describe 'basic tests' do
     PP
   end
 
-  describe 'puppetserver' do
+  describe 'puppetserver', :requirement do
     it 'applies idempotently' do
       idempotent_apply(puppetserver_pp)
     end
