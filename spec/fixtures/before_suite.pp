@@ -23,8 +23,5 @@ if $facts['os']['family'] == 'RedHat' {
     Yumrepo <| tag == 'postgresql::repo' |>
     -> Package['disable-dnf-postgresql-module']
     -> Package <| tag == 'postgresql' |>
-  } else {
-    # ip6tables fails to start and causes a cascading failure on GH actions
-    exec { '/usr/bin/env systemctl mask ip6tables.service': }
   }
 }

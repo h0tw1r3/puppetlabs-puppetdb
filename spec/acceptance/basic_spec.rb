@@ -29,7 +29,7 @@ describe 'basic tests' do
     -> augeas { 'puppetserver-environment':
       context => "/files${sysconfdir}/puppetserver",
       changes => [
-        'set JAVA_ARGS \'"-Xms384m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"\'',
+        "set JAVA_ARGS '\\"-Xms384m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger\\"'",
       ],
     }
     ~> service { 'puppetserver':
@@ -52,6 +52,9 @@ describe 'basic tests' do
       }
       -> Yumrepo <| tag == 'postgresql::repo' |> {
         gpgkey => "file:///etc/pki/rpm-gpg/${gpg_key_file}",
+      }
+      if Integer($facts['os']['release']['major']) < 8 {
+        Service['ip6tables'] { enable => 'mask' }
       }
     }
 
