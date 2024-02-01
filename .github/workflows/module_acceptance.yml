@@ -85,11 +85,6 @@ jobs:
             test-${{ env.cache-name }}-
             test-
 
-      - if: ${{ steps.cache-fixtures.outputs.cache-hit != 'true' }}
-        name: List the state of fixture modules
-        continue-on-error: true
-        run: ls -1 spec/fixtures/modules
-
       - name: Install module
         run: bundle exec rake 'litmus:install_module'
 
