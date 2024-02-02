@@ -29,15 +29,17 @@ if $facts['os']['family'] == 'RedHat' {
     # Without this, the puppet agent will stall for 300 seconds waiting for
     # the service to start... then miserably fail.
     # systemd error message:
-    #     New main PID 1411 does not belong to service, and PID file is not owned by root. Refusing.
-    systemd::dropin_file { 'fix_start.conf':
-      unit    => 'puppetserver.service',
-      require => Package['puppetserver'],
-      notify  => Service['puppetserver'],
-      content => @(EOD)
-        PIDFile=
-        | EOD
-      ,
+    #     New main PID 1411 does not belong to service, and PID file is not
+    #     owned by root. Refusing.
+    # PIDFile is not needed, but it cannot be reset by a drop-in, therefor the
+    # original unit must be modified
+    file_line { 'puppetserver-unit-remove-pidfile':
+      path               => '/lib/systemd/system/puppetserver.service',
+      line               => '#PIDFile=/run/puppetlabs/puppetserver.pid',
+      match              => '^PIDFile.*',
+      append_on_no_match => false,
+      require            => Package['puppetserver'],
+      notify             => Service['puppetserver'],
     }
   }
 }
