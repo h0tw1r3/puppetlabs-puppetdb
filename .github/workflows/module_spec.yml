@@ -70,7 +70,13 @@ jobs:
             test-
 
       - name: "Run static & syntax tests"
-        run: bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+        run: |
+          TASKS=(syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file strings:validate:reference rubocop)
+          for TASK in "${TASKS[@]}" ; do
+            echo "::group::${TASK}"
+            bundle exec rake $TASK
+            echo "::endgroup::"
+          done
 
       - name: "Dependency check"
         run: |
