@@ -22,3 +22,16 @@ spec/default_facts.yml:
 spec/spec_helper.rb:
   coverage_report: true
   minimum_code_coverage_percentage: 100
+Gemfile:
+  optional:
+    ':system_tests':
+      - gem: bolt
+        git: https://github.com/h0tw1r3/bolt.git
+        branch: lxd-transport-options
+  overrides:
+    - gem: puppetlabs_spec_helper
+      version: '~> 7.0'
+    - gem: puppet_litmus
+      git: https://github.com/h0tw1r3/puppet_litmus.git
+      branch: lxd
+      platforms: [ 'ruby', 'x64_mingw' ]

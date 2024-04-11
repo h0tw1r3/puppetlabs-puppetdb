@@ -2,7 +2,13 @@
 default:
   provisioner: docker
   images:
-    - litmusimage/ubuntu:20.04
+    - litmusimage/ubuntu:22.04
+    - litmusimage/almalinux:9
+lxd:
+  provisioner: lxd
+  images:
+    - images:ubuntu/22.04
+    - images:almalinux/9
 yum:
   provisioner: docker
   images:

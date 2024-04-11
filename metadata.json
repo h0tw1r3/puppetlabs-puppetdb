@@ -76,6 +76,6 @@
   ],
   "description": "Module for installing/configuring PuppetDB",
   "pdk-version": "3.0.1",
-  "template-url": "https://github.com/puppetlabs/pdk-templates#3.0.1",
-  "template-ref": "tags/3.0.1-0-gd13288a"
+  "template-url": "https://github.com/puppetlabs/pdk-templates#main",
+  "template-ref": "heads/main-0-g0f7378b"
 }

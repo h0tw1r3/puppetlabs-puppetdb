@@ -6,7 +6,9 @@ fixtures:
     apt: 'https://github.com/puppetlabs/puppetlabs-apt.git'
     concat: 'https://github.com/puppetlabs/puppetlabs-concat.git'
     systemd: 'https://github.com/camptocamp/puppet-systemd.git'
-    provision: 'https://github.com/puppetlabs/provision.git'
+    provision:
+      repo: 'https://github.com/h0tw1r3/provision.git'
+      branch: 'lxd'
     puppet_agent: 'https://github.com/puppetlabs/puppetlabs-puppet_agent.git'
     facts: 'https://github.com/puppetlabs/puppetlabs-facts.git'
     cron_core: 'https://github.com/puppetlabs/puppetlabs-cron_core.git'
