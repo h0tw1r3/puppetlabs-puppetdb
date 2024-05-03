@@ -5,5 +5,5 @@ on:
 
 jobs:
   release:
-    uses: "puppetlabs/cat-github-actions/.github/workflows/module_release.yml@main"
+    uses: "puppetlabs/cat-github-actions/.github/workflows/module_release.yml@forked-modules"
     secrets: "inherit"
