@@ -2,8 +2,18 @@ name: "Publish module"
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (default: latest tag on branch)"
+        type: string
+      test:
+        description: "Skip publish steps"
+        type: boolean
 
 jobs:
   release:
-    uses: "puppetlabs/cat-github-actions/.github/workflows/module_release.yml@main"
+    uses: "puppetlabs/cat-github-actions/.github/workflows/module_release.yml@release-any-tag"
     secrets: "inherit"
+    with:
+      tag: ${{ github.event.inputs.tag }}
+      test: ${{ github.event.inputs.test }}
